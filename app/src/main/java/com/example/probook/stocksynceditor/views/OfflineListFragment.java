@@ -7,14 +7,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 import com.example.probook.stocksynceditor.R;
 import com.example.probook.stocksynceditor.handler.DBHandler;
 import com.example.probook.stocksynceditor.helper.CustomListAdapter;
 import com.example.probook.stocksynceditor.model.Stock;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,15 +26,13 @@ public class OfflineListFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         dataSouce = new DBHandler(activity, "offline.db");
-        Log.e("Offline Fragment", new Object(){}.getClass().getEnclosingMethod().getName());
-    }
+     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_list_objects, container, false);
         Bundle args = getArguments();
         Log.e("Offline Fragment", new Object(){}.getClass().getEnclosingMethod().getName());
-
         return rootView;
     }
 
@@ -49,10 +44,7 @@ public class OfflineListFragment extends Fragment {
 
         ListView lv = (ListView) getView().findViewById(R.id.list);
         adapter = new CustomListAdapter(getActivity(), allStocks);
-        Log.e("Offline Fragment", new Object(){}.getClass().getEnclosingMethod().getName());
-        Log.e("Offline Fragment", String.valueOf(adapter.getCount()));
-
-
+        lv.setAdapter(adapter);
+        Log.e("Offline Fragment", new Object() {}.getClass().getEnclosingMethod().getName());
     }
-
 }

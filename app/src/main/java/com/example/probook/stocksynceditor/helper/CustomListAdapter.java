@@ -28,12 +28,11 @@ public class CustomListAdapter extends BaseAdapter {
         this.allStocks = allStocks;
         this.filteredStocks = allStocks;
         this.activity = activity;
-        Log.e("Custom Adapter", "Constructor");
+        System.out.println("Custom Adapter " + "Constructor");
     }
 
     @Override
     public int getCount() {
-        Log.e("Custom Adapter", String.valueOf(filteredStocks.size()));
         return filteredStocks.size();
     }
 
@@ -71,7 +70,6 @@ public class CustomListAdapter extends BaseAdapter {
         txtItemPrice.setText(filteredStocks.get(position).getItemPrice());
         txtModifiedOn.setText(filteredStocks.get(position).getModifiedOn());
 
-        Log.e("Name", filteredStocks.get(position).getItemName());
         return convertView;
     }
 }
