@@ -1,15 +1,17 @@
 package com.example.probook.stocksynceditor.views;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.example.probook.stocksynceditor.R;
+import com.example.probook.stocksynceditor.controller.NetworkCommunicator;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements NetworkCommunicator.onDBUpdateListener{
 
     private CollectionPagerAdapter mCollectionPagerAdapter;
     private ViewPager mViewPager;
@@ -23,13 +25,14 @@ public class MainActivity extends ActionBarActivity {
         mCollectionPagerAdapter = new CollectionPagerAdapter(getSupportFragmentManager());
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mCollectionPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
+        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 Log.e("Pager: ", String.valueOf(position));
             }
         });
+
     }
 
     @Override
@@ -52,5 +55,11 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDBChanged() {
+        CloudListFragment frag = (CloudListFragment) mCollectionPagerAdapter.getRegisteredFragment(1);
+        frag.dbUpdated();
     }
 }

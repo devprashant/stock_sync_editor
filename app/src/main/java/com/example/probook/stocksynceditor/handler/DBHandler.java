@@ -144,10 +144,20 @@ public class DBHandler {
     }
 
     // 4. Delete Stock
+    // 4.1 Delete stock object
     public void deleteStock(Stock stock){
+        this.open();
         long id = stock.getId();
 
         database.delete(SQLiteHelper.TABLE_STOCK, SQLiteHelper.COL_ID + " =?", new String[]{String.valueOf(id)});
+        this.close();
+    }
+
+    // 4.2 Delete all stocks
+    public void deleteAllStocks(){
+        this.open();
+        database.execSQL("DELETE FROM " + SQLiteHelper.TABLE_STOCK);
+        this.close();
     }
 
     // Helper Functions
