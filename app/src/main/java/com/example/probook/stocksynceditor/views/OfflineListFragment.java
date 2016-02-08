@@ -7,8 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import com.example.probook.stocksynceditor.R;
+import com.example.probook.stocksynceditor.controller.NetworkCommunicator;
 import com.example.probook.stocksynceditor.handler.DBHandler;
 import com.example.probook.stocksynceditor.helper.CustomListAdapter;
 import com.example.probook.stocksynceditor.model.Stock;
@@ -21,6 +23,7 @@ public class OfflineListFragment extends Fragment {
 
     public DBHandler dataSouce;
     private CustomListAdapter adapter;
+    private ListView lv;
 
     @Override
     public void onAttach(Activity activity) {
@@ -42,9 +45,25 @@ public class OfflineListFragment extends Fragment {
 
         List<Stock> allStocks = dataSouce.getAllStocks();
 
-        ListView lv = (ListView) getView().findViewById(R.id.list);
+        lv = (ListView) getView().findViewById(R.id.list);
         adapter = new CustomListAdapter(getActivity(), allStocks);
         lv.setAdapter(adapter);
+        Button btnUpdate = (Button) getView().findViewById(R.id.btn_update);
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new NetworkCommunicator(getActivity()).setData();
+            }
+        });
         Log.e("Offline Fragment", new Object() {}.getClass().getEnclosingMethod().getName());
     }
+
+    public void dbUpdated(){
+
+        List<Stock> allStocks = dataSouce.getAllStocks();
+        lv = (ListView) getView().findViewById(R.id.list);
+        adapter = new CustomListAdapter(getActivity(), allStocks);
+        lv.setAdapter(adapter);
+    }
+
 }

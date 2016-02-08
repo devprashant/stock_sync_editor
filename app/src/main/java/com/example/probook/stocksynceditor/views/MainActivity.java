@@ -11,7 +11,7 @@ import com.example.probook.stocksynceditor.R;
 import com.example.probook.stocksynceditor.controller.NetworkCommunicator;
 
 
-public class MainActivity extends ActionBarActivity implements NetworkCommunicator.onDBUpdateListener{
+public class MainActivity extends ActionBarActivity implements NetworkCommunicator.onDBUpdateListener, NetworkCommunicator.onOfflineDBUpdateListener{
 
     private CollectionPagerAdapter mCollectionPagerAdapter;
     private ViewPager mViewPager;
@@ -60,6 +60,12 @@ public class MainActivity extends ActionBarActivity implements NetworkCommunicat
     @Override
     public void onDBChanged() {
         CloudListFragment frag = (CloudListFragment) mCollectionPagerAdapter.getRegisteredFragment(1);
+        frag.dbUpdated();
+    }
+
+    @Override
+    public void onOfflineDBChanged() {
+        OfflineListFragment frag = (OfflineListFragment) mCollectionPagerAdapter.getRegisteredFragment(0);
         frag.dbUpdated();
     }
 }

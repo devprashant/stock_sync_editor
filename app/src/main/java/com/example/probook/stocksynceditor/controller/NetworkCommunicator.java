@@ -8,12 +8,14 @@ import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.probook.stocksynceditor.R;
 import com.example.probook.stocksynceditor.handler.DBHandler;
@@ -22,6 +24,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.List;
+
 /**
  * Created by probook on 2/5/2016.
  */
@@ -29,9 +34,70 @@ public class NetworkCommunicator {
 
     private Context context;
     private onDBUpdateListener mCallback;
+    private onOfflineDBUpdateListener mfCallback;
+    private DBHandler dataSouce;
 
     public NetworkCommunicator(Context context) {
         this.context = context;
+    }
+
+    public void setData(){
+
+        try {
+            mfCallback = (onOfflineDBUpdateListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement onOfflineDBchanged listsner");
+        }
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        String url = "http://10.0.2.2:3000/stocks/cstock";
+        dataSouce = new DBHandler(context,"offline.db");
+        List<Stock> allStocks = dataSouce.getAllStocks();
+        JsonObjectRequest req;
+        for (final Stock stock : allStocks) {
+            HashMap<String, String> stockToSet = new HashMap<>();
+            stockToSet.put("itemname", stock.getItemName());
+            stockToSet.put("quantity", stock.getItemQuantity());
+            stockToSet.put("price", stock.getItemPrice());
+            stockToSet.put("createdon", stock.getCreatedOn());
+            stockToSet.put("createdby", stock.getCreatedBy());
+            stockToSet.put("modifiedon", stock.getModifiedOn());
+            stockToSet.put("modifiedby", stock.getModifiedBy());
+
+            JSONObject jsonReqBody = new JSONObject(stockToSet);
+
+            Log.e("Json", jsonReqBody.toString());
+
+            req = new JsonObjectRequest(Request.Method.POST, url, jsonReqBody, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Log.e("Data: ", "Added successfully" + stock.getItemName());
+                    // Delete stock if inserted in cloud successfully
+                    new DBHandler(context, "offline.db").deleteStock(stock);
+                    // Notify adapter for the change
+                    // This callback should synchronous with the upper delete stock
+                    // Here this works good as above operation is very quick
+                    // !may create problem if local data is huge
+                    mfCallback.onOfflineDBChanged();
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                        Toast.makeText(context, context.getString(R.string.error_network_timeout), Toast.LENGTH_LONG).show();
+                    } else if (error instanceof AuthFailureError) {
+                        //TODO
+                    } else if (error instanceof ServerError) {
+                        //TODO
+                    } else if (error instanceof NetworkError) {
+                        //TODO
+                    } else if (error instanceof ParseError) {
+                        //TODO
+                    }
+                }
+            });
+
+            requestQueue.add(req);
+        }
     }
 
     public void getData() {
@@ -127,5 +193,9 @@ public class NetworkCommunicator {
 
     public interface onDBUpdateListener {
         public void onDBChanged();
+    }
+
+    public interface onOfflineDBUpdateListener{
+        public void onOfflineDBChanged();
     }
 }
