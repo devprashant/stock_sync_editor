@@ -3,11 +3,14 @@ package com.example.probook.stocksynceditor.views;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import com.example.probook.stocksynceditor.R;
 import com.example.probook.stocksynceditor.controller.NetworkCommunicator;
@@ -55,7 +58,26 @@ public class OfflineListFragment extends Fragment {
                 new NetworkCommunicator(getActivity()).setData();
             }
         });
-        Log.e("Offline Fragment", new Object() {}.getClass().getEnclosingMethod().getName());
+        Log.e("Offline Fragment", new Object() {
+        }.getClass().getEnclosingMethod().getName());
+
+        EditText etSearch = (EditText) getView().findViewById(R.id.et_search);
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                adapter.getFilter().filter(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     public void dbUpdated(){

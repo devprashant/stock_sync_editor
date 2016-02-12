@@ -87,6 +87,7 @@ public class ObjectAddFragment extends Fragment implements View.OnClickListener 
         stock.setCreatedBy("Santi User");
         stock.setModifiedOn(sDate);
         stock.setModifiedBy("Santi User");
+        stock.setObjectId("offline");
 
         saveData(stock);
     }

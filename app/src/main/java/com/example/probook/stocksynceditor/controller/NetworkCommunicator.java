@@ -41,6 +41,55 @@ public class NetworkCommunicator {
         this.context = context;
     }
 
+    public void deleteData(String objectId){
+
+        // Checking for mainactivity for implementing callback interface
+        try {
+            mCallback = (onDBUpdateListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement onDBchanged listsner");
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        String url = "http://stock-devprashant.rhcloud.com/stocks/dstock/" + objectId;
+        //String url = "http://10.0.2.2:3000/stocks/dstock/" + objectId;
+        Log.e("Id of object to delete", objectId);
+
+        // Get data from Network
+
+        JsonObjectRequest req = new JsonObjectRequest(Request.Method.POST, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                if (response.length() > 0) {
+                    Log.e("D JSON Response", response.getClass().getSimpleName());
+
+                    // Async Update data in cloud.db
+                    Toast.makeText(context,"Delete Successfully", Toast.LENGTH_SHORT).show();
+                    new NetworkCommunicator(context).getData();
+                } else {
+                    Log.e("JSON Response", "EMPTY");
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                    Toast.makeText(context,context.getString(R.string.error_network_timeout),Toast.LENGTH_LONG).show();
+                } else if (error instanceof AuthFailureError) {
+                    //TODO
+                } else if (error instanceof ServerError) {
+                    //TODO
+                } else if (error instanceof NetworkError) {
+                    //TODO
+                } else if (error instanceof ParseError) {
+                    //TODO
+                }
+            }
+        });
+
+        requestQueue.add(req);
+    }
     public void setData(){
 
         try {
@@ -49,9 +98,13 @@ public class NetworkCommunicator {
             throw new ClassCastException(context.toString() + " must implement onOfflineDBchanged listsner");
         }
         RequestQueue requestQueue = Volley.newRequestQueue(context);
-        String url = "http://10.0.2.2:3000/stocks/cstock";
+        String url = "http://stock-devprashant.rhcloud.com/stocks/cstock";
+        //String url = "http://10.0.2.2:3000/stocks/cstock";
+
         dataSouce = new DBHandler(context,"offline.db");
-        List<Stock> allStocks = dataSouce.getAllStocks();
+        final List<Stock> allStocks = dataSouce.getAllStocks();
+        final int[] counter = {0};
+
         JsonObjectRequest req;
         for (final Stock stock : allStocks) {
             HashMap<String, String> stockToSet = new HashMap<>();
@@ -73,6 +126,12 @@ public class NetworkCommunicator {
                     Log.e("Data: ", "Added successfully" + stock.getItemName());
                     // Delete stock if inserted in cloud successfully
                     new DBHandler(context, "offline.db").deleteStock(stock);
+
+                    // counter to display Toast when all offline stcok is uploaded.
+                    counter[0]++;
+                    if(counter[0] == allStocks.size()){
+                        Toast.makeText(context, "All Stocks Uploaded", Toast.LENGTH_SHORT).show();
+                    }
                     // Notify adapter for the change
                     // This callback should synchronous with the upper delete stock
                     // Here this works good as above operation is very quick
@@ -110,8 +169,8 @@ public class NetworkCommunicator {
         }
 
         RequestQueue requestQueue = Volley.newRequestQueue(context);
-        //String url = "http://stock-devprashant.rhcloud.com/stocks/lstock";
-        String url = "http://10.0.2.2:3000/stocks/lstock";
+        String url = "http://stock-devprashant.rhcloud.com/stocks/lstock";
+        //String url = "http://10.0.2.2:3000/stocks/lstock";
 
         // Get data from Network
         JsonArrayRequest req = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
@@ -167,6 +226,7 @@ public class NetworkCommunicator {
                 try {
                     JSONObject jobj = res.getJSONObject(i);
                     Log.e("R from thread ", jobj.getString("itemname"));
+
                     stock.setItemName(jobj.getString("itemname"));
                     stock.setItemQuantity(jobj.getString("quantity"));
                     stock.setItemPrice(jobj.getString("price"));
@@ -174,6 +234,7 @@ public class NetworkCommunicator {
                     stock.setCreatedBy(jobj.getString("createdby"));
                     stock.setModifiedOn(jobj.getString("modifiedon"));
                     stock.setModifiedBy(jobj.getString("modifiedby"));
+                    stock.setObjectId(jobj.getString("_id"));
 
                     dataSource.createStock(stock);
                 } catch (JSONException e) {

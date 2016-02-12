@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.util.Log;
 
 import com.example.probook.stocksynceditor.helper.SQLiteHelper;
 import com.example.probook.stocksynceditor.model.Stock;
@@ -31,6 +32,7 @@ public class DBHandler {
             ,SQLiteHelper.COL_CREATED_BY
             ,SQLiteHelper.COL_MODIFIED_ON
             ,SQLiteHelper.COL_MODIFIED_BY
+            ,SQLiteHelper.COL_OBJECT_ID
     };
 
     public DBHandler(Context context, String dbName) {
@@ -67,6 +69,8 @@ public class DBHandler {
         stockEntry.put(SQLiteHelper.COL_CREATED_BY, stock.getCreatedBy());
         stockEntry.put(SQLiteHelper.COL_MODIFIED_ON, stock.getModifiedOn());
         stockEntry.put(SQLiteHelper.COL_MODIFIED_BY, stock.getModifiedBy());
+        stockEntry.put(SQLiteHelper.COL_OBJECT_ID, stock.getObjectId());
+        Log.e("Stock object Id", stock.getObjectId());
 
         long insertId = database.insert(SQLiteHelper.TABLE_STOCK,null, stockEntry);
 
@@ -171,6 +175,7 @@ public class DBHandler {
         stock.setCreatedBy(cursor.getString(5));
         stock.setModifiedOn(cursor.getString(6));
         stock.setModifiedBy(cursor.getString(7));
+        stock.setObjectId(cursor.getString(8));
 
         return stock;
     }

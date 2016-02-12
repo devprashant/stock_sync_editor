@@ -19,10 +19,11 @@ public class SQLiteHelper extends SQLiteOpenHelper {
     public static final String COL_CREATED_BY = "created_by";
     public static final String COL_MODIFIED_ON = "modified_on";
     public static final String COL_MODIFIED_BY = "modified_by";
+    public static final String COL_OBJECT_ID = "object_id";
 
     public static String DATABASE_NAME ;
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String DATABASE_CREATE_CMD = "create table " + TABLE_STOCK + "("
             + COL_ID + " integer primary key autoincrement, "
@@ -32,8 +33,10 @@ public class SQLiteHelper extends SQLiteOpenHelper {
             + COL_CREATED_ON + " text not null, "
             + COL_CREATED_BY + " text not null, "
             + COL_MODIFIED_ON + " text not null, "
-            + COL_MODIFIED_BY + " text not null "
+            + COL_MODIFIED_BY + " text not null, "
+            + COL_OBJECT_ID + " text not null "
             + ")";
+
 
     public SQLiteHelper(Context context, String dbName){
         super(context, dbName, null, DATABASE_VERSION);
